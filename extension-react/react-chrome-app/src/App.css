@@ -36,3 +36,73 @@
     transform: rotate(360deg);
   }
 }
+
+.results-list {
+  list-style: none;
+  padding: 0;
+}
+
+.results-list li {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.title,
+.author,
+.isbn,
+.publisher,
+.publication-date,
+.price {
+  font-weight: bold;
+}
+
+.title span,
+.author span,
+.isbn span,
+.publisher span,
+.publication-date span,
+.price span {
+  font-weight: normal;
+}
+
+.title {
+  color: #555;
+}
+
+.author {
+  color: #777;
+}
+
+.isbn,
+.publisher,
+.publication-date {
+  color: #888;
+}
+
+.price {
+  color: #c00;
+}
+
+.book-container-portada {
+  max-width: 300px; /* Ancho máximo deseado */
+}
+
+
+.book-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  /* Ajusta el espaciado entre la imagen y la información */
+}
+
+.book-image {
+  width: 150px; /* Ajusta el ancho deseado para la imagen */
+}
+
+.book-container-info {
+  flex: 1;
+}
+
+
+

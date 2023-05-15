@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from "react";
 
+
 function App() {
   const [searchResults, setSearchResults] = useState([]);
   const imageUrl = 'http://localhost:3001/percy-jackson';
@@ -54,15 +55,22 @@ function App() {
     <div>
       <SearchBar onSearch={handleSearch} />
       {/* Aquí puedes mostrar los resultados de búsqueda */}
-      <ul>
+      <ul class="results-list">
         {data.map((result, index) => (
           <li key={index}>
-            <div>Titulo: {result.titulo}</div>
-            <div>Autor: {result.autor}</div>
-            <div>ISBN: {result.isbn}</div>
-            <div>Editorial: {result.editorial}</div>
-            <div>Fecha de Publicación: {result.fechaPublicacion}</div>
-            <div>Precio: {result.precio} {result.precioMoneda}</div>
+            <div class="book-item">
+              <div class="book-container-portada">
+                <img class="book-image" src={result.imagen || '/portadaEjemplo.jpg'} alt="Imagen del libro" />
+              </div>
+              <div class="book-container-info">
+                <div class="title">Titulo: <span>{result.titulo}</span></div>
+                <div class="author">Autor: <span>{result.autor}</span></div>
+                <div class="isbn">ISBN: <span>{result.isbn}</span></div>
+                <div class="publisher">Editorial: <span>{result.editorial}</span></div>
+                <div class="publication-date">Fecha de Publicación: <span>{result.fechaPublicacion}</span></div>
+                <div class="price">Precio: <span>{result.precio} {result.precioMoneda}</span></div>
+              </div>
+            </div>
           </li>
         ))}
       </ul>
