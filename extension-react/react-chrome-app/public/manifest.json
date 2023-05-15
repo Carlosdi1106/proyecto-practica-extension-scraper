@@ -1,0 +1,19 @@
+{
+  "name": "Extension Scrapper",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "service.js"
+  },
+  "permissions": [
+    "webRequest",
+    "scripting"
+  ],
+  "icons": {
+    "16": "logo192.png",
+    "48": "logo192.png",
+    "128": "logo192.png"
+  }
+  
+}
