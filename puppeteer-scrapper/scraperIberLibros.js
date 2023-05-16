@@ -9,16 +9,11 @@ const { Console } = require('console');
   const page = await browser.newPage();
   await page.goto('https://www.iberlibro.com/');
 
-  //confirmar que eres humano
-  /*const cajaConfirmacion= await page.$('#challenge-stage > div > label > input[type=checkbox]');
-  page.click(cajaConfirmacion)*/
-
-
   //busca la palabra deseada
   const searchBox =await page.$('#header-searchbox-input-m')
   
   //await searchBox.type(stringDeBusqueda)
-  await searchBox.type('star wars')
+  await searchBox.type('farenheit 451')
   
   await searchBox.press('Enter')
   await page.waitForNavigation();
@@ -26,11 +21,17 @@ const { Console } = require('console');
   const elementos = await page.$$('li[data-cy="listing-item"]');
   resulta=[]
 
+  
 
-  for (let i=0; i<7; i++) {
+  for (let i=0; i<30; i++) {
     const elemento=elementos[i]
-    const titulo = await elemento.$eval('meta[itemprop="name"]', el => el.getAttribute('content'));
     
+    try{titulo = await elemento.$eval('meta[itemprop="name"]', el => el.getAttribute('content'));}
+    catch (error) {
+      console.log('Ha habido un error capturando el titulo')
+      console.log('El error concreto es el siguiente: ' + error)
+      continue;
+    }
     
     //ciertos libros no tienen fecha por algun motivo
     let fechaPublicacion='';
@@ -47,7 +48,7 @@ const { Console } = require('console');
     catch (error) {
       console.log('Ha habido un error capturando el isbn')
       console.log('El error concreto es el siguiente: ' + error)
-      isbn='Desconocida'
+      continue;
     }
 
     //alguno no tienen autor
@@ -71,14 +72,24 @@ const { Console } = require('console');
     const precio = await elemento.$eval('meta[itemprop="price"]', el => el.getAttribute('content'));
     const precioMoneda = await elemento.$eval('meta[itemprop="priceCurrency"]', el => el.getAttribute('content'));
 
-    //TODO imagen
-    const imagen='ejemplo.jpg'
+    //imagen
+    let imagen='';
+    try{imagen = await elemento.$eval('img[class="srp-item-image"]', el => el.getAttribute('src'));}
+    catch (error) {
+      console.log('Ha habido un error capturando la imagen')
+      console.log('El error concreto es el siguiente: ' + error)
+      imagen=null;
+    }
+
+    //url
+    let url= await elemento.$eval('a[class="srp-image-link thumbnail"]', el => el.getAttribute('href'));
+    url = 'https://www.iberlibro.com'+url
 
     //if(i==2){await sleep(10000)}
 
     console.log('Iteración numero: ' + i)
     let texto={titulo, autor, isbn, editorial,
-       fechaPublicacion, precio, precioMoneda, imagen}
+       fechaPublicacion, precio, precioMoneda, imagen,url}
     resulta.push(texto)
   }
 
@@ -86,6 +97,7 @@ const { Console } = require('console');
   const datosString = JSON.stringify(resulta);
   console.log(datosString)
   fs.writeFileSync('scraperIberLibros.json', datosString);
+  
 
   // Close browser
   await browser.close();
