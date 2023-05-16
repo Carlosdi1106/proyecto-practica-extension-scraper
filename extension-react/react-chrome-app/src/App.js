@@ -15,6 +15,11 @@ function App() {
   .catch(error => console.error('Error:', error));
 
   //
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+
+  const handleLanguageChange = (newLanguage) => {
+    setSelectedLanguage(newLanguage);
+  };
 
 
   const handleSearch = (searchTerm) => {
@@ -54,6 +59,10 @@ function App() {
   return (
     <div>
       <SearchBar onSearch={handleSearch} />
+      <div>
+      <h1>Idioma seleccionado: {selectedLanguage}</h1>
+      <LanguageSelector selectedLanguage={selectedLanguage} onLanguageChange={handleLanguageChange} />
+    </div>
       {/* Aquí puedes mostrar los resultados de búsqueda */}
       <ul class="results-list">
         {data.map((result, index) => (
@@ -94,6 +103,26 @@ const SearchBar = ({ onSearch }) => {
     <div>
       <input type="text" value={searchTerm} onChange={handleInputChange} />
       <button onClick={handleSearch}>Buscar</button>
+    </div>
+  );
+};
+
+
+const LanguageSelector = ({ selectedLanguage, onLanguageChange }) => {
+  const handleLanguageChange = (event) => {
+    const newLanguage = event.target.value;
+    onLanguageChange(newLanguage);
+  };
+
+  return (
+    <div>
+      <label htmlFor="language-select">Selecciona el idioma: </label>
+      <select id="language-select" value={selectedLanguage} onChange={handleLanguageChange}>
+        <option value="English">Inglés</option>
+        <option value="Español">Español</option>
+        <option value="Euskara">Euskara</option>
+        {/* Agrega más opciones de idioma según sea necesario */}
+      </select>
     </div>
   );
 };
