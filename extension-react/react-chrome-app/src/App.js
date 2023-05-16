@@ -2,14 +2,38 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from "react";
 //import {busquedaAmazon, busquedaIberLibro} from '../background';
-import {compararLibros} from './procesamientoResultados.js';
-
+//import {compararLibros} from './procesamientoResultados.js';
+//const compararLibros = require('./procesamientoResultados.js')
 
 function App() {
   const [searchResults, setSearchResults] = useState([]);
   const imageUrl = 'http://localhost:3001/percy-jackson';
   const [data, setData] = useState([]);
   let inicializated = false;
+
+  function compararLibros(listaIber, listaAmazonLibro){
+    const resultados = [];
+  for (let libroIberLibro of listaIber) {
+    for (let libroAmazon of listaAmazonLibro) {
+      if (libroIberLibro.isbn === libroAmazon.isbn) {
+        const resultado = {};
+        if (libroIberLibro.precio < libroAmazon.precio) {
+          resultado.mas_bajo = 1;
+        } else if (libroIberLibro.precio > libroAmazon.precio) {
+          resultado.mas_bajo = 2;
+        } else {
+          resultado.mas_bajo = "Igual";
+        }
+        
+        resultado.contenidoIberLibro = libroIberLibro;
+        resultado.contenidoAmazon = libroAmazon;
+  
+        resultados.push(resultado);
+      }
+    }
+  }
+  return resultados;
+}
 
   const fetchObject = () => fetch(imageUrl)
   .then(response => response.json())
@@ -87,7 +111,7 @@ function App() {
       <div>
       {data.length > 0 ? (
       <div className="row">
-        <div className="column">
+        <div className={`column ${data[currentIndex]?.mas_bajo === 1 ? 'highlight' : ''}`}>
           <h2>IberLibros</h2>
           <div className="book-item">
             <div className="book-container-portada">
@@ -103,7 +127,7 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="column">
+        <div className={`column ${data[currentIndex]?.mas_bajo === 2 ? 'highlight' : ''}`}>
           <h2>Amazon</h2>
           <div className="book-item">
             <div className="book-container-portada">

@@ -94,6 +94,8 @@
   align-items: center;
   gap: 20px;
   /* Ajusta el espaciado entre la imagen y la información */
+  padding: 10px; /* Ajusta el espacio interno */
+  margin-bottom: 10px; /* Ajusta el espacio externo (margen inferior) */
 }
 
 .book-image {
@@ -118,5 +120,9 @@
 
 .column {
   flex: 1;
+}
+
+.column.highlight {
+  background-color: rgb(151, 240, 184);
 }
 

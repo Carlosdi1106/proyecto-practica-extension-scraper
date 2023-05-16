@@ -43,7 +43,7 @@ const listaIberLibro = [
   ];
   
   
-function compararLibros(listaIber, listaAmazonLibro){
+export default function compararLibros(listaIber, listaAmazonLibro){
     const resultados = [];
   for (let libroIberLibro of listaIber) {
     for (let libroAmazon of listaAmazonLibro) {
@@ -70,5 +70,4 @@ function compararLibros(listaIber, listaAmazonLibro){
   //let resul= compararLibros(listaIberLibro,listaAmazon);
   //console.log(resul);
 
-module.exports={compararLibros};
   

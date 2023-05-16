@@ -8,6 +8,7 @@
     "service_worker": "service.js"
   },
   "permissions": [
+    "webRequest",
     "storage",
     "activeTab",
     "scripting",
