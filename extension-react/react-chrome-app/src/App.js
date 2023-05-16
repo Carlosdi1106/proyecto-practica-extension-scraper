@@ -1,6 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from "react";
+//import {busquedaAmazon, busquedaIberLibro} from '../background';
+import {compararLibros} from './procesamientoResultados.js';
 
 
 function App() {
@@ -27,6 +29,7 @@ function App() {
     // Por ejemplo, puedes hacer una solicitud a una API o buscar en una lista de elementos
     // En este ejemplo, simplemente estableceremos los resultados de búsqueda en un array vacío
     fetchObject();
+    //setData(JSON.parse(busquedaIberLibro(imageUrl)));
   };
 
   const performSearch = (searchTerm) => {

@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { Console } = require('console');
 
-(async (stringDeBusqueda) => {
+async function busquedaIberLibro(stringDeBusqueda){
 
   // Lanzar el navegador y abrir la página
   const browser = await puppeteer.launch({headless: false});
@@ -13,7 +13,7 @@ const { Console } = require('console');
   const searchBox =await page.$('#header-searchbox-input-m')
   
   //await searchBox.type(stringDeBusqueda)
-  await searchBox.type('farenheit 451')
+  await searchBox.type('percy jackson libro español')
   
   await searchBox.press('Enter')
   await page.waitForNavigation();
@@ -96,16 +96,11 @@ const { Console } = require('console');
   // Poner los precios en JSON en un archivo
   const datosString = JSON.stringify(resulta);
   console.log(datosString)
-  fs.writeFileSync('scraperIberLibros.json', datosString);
   
 
   // Close browser
   await browser.close();
-})();
+  return datosString;
+};
 
-function sleep (ms){
-
-  return new Promise(resolve => setTimeout(resolve,ms))
-
-}
-
+module.exports={busquedaIberLibro};

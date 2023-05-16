@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-(async (stringDeBusqueda) => {
+async function busquedaAmazon(stringDeBusqueda){
   // Lanzar el navegador y abrir la página
   const browser = await puppeteer.launch({headless: false});
   const page = await browser.newPage();
@@ -11,7 +11,7 @@ const fs = require('fs');
   // Bucar la caja de busqueda e introducir el texto en ella
   const searchBox = await page.$('#twotabsearchtextbox');
   //let busqueda = stringDeBusqueda + ' libros'
-  let busqueda= 'percy jackson libros';
+  let busqueda= 'percy jackson libro español';
   await searchBox.type(busqueda);
   
   // Apretar el boton enter
@@ -141,11 +141,12 @@ const fs = require('fs');
 
   // Poner los precios en JSON en un archivo
   const datosString = JSON.stringify(productosFinales);
-  fs.writeFileSync('scraperAmazon.json', datosString);
+  
 
   // Close browser
   await browser.close();
-})();
+  return datosString;
+};
 
 
 
@@ -153,3 +154,5 @@ const fs = require('fs');
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+module.exports={busquedaAmazon};

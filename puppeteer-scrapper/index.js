@@ -1,5 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
+const amazon= require('./scraperAmazon.js');
+const iber = require('./scraperIberLibros.js');
 
 const app = express();
 const port = 3001;
@@ -13,65 +15,20 @@ app.use((req, res, next) => {
 });
 
 app.get('/:busqueda', async (req, res) => {
-  const browser = await puppeteer.launch({headless: false});
-  const page = await browser.newPage();
-  await page.goto('https://www.iberlibro.com/');
-
-  //confirmar que eres humano
-  /*const cajaConfirmacion= await page.$('#challenge-stage > div > label > input[type=checkbox]');
-  page.click(cajaConfirmacion)*/
-
-
-  //busca la palabra deseada
-  const searchBox =await page.$('#header-searchbox-input-m')
-  stringDeBusqueda = req.params.busqueda;
-  console.log(stringDeBusqueda);
-  await searchBox.type(stringDeBusqueda)
-  //await searchBox.type('percy jackson')
-  
-  await searchBox.press('Enter')
-  await page.waitForNavigation();
-  console.log('Ya he esperado')
-
-  const elementos = await page.$$('li[data-cy="listing-item"]');
-  resulta=[]
-
-
-  for (let i=0; i<7; i++) {
-    const elemento = elementos[i]
-    const titulo = await elemento.$eval('meta[itemprop="name"]', el => el.getAttribute('content'));
-    const autor = await elemento.$eval('meta[itemprop="author"]', el => el.getAttribute('content'));
-    const isbn = await elemento.$eval('meta[itemprop="isbn"]', el => el.getAttribute('content'));
-    const editorial = await elemento.$eval('meta[itemprop="publisher"]', el => el.getAttribute('content'));
+  try {
+    const resultadoAmazon = await amazon.busquedaAmazon("percy jackson");
+    const resultadoIberLibros = await iber.busquedaIberLibro("percy jackson");
     
-    //ciertos libros no tienen fecha por algun motivo
-    let fechaPublicacion='';
-    try{fechaPublicacion = await elemento.$eval('meta[itemprop="datePublished"]', el => el.getAttribute('content'));}
-    catch (error) {
-      console.log('Ha habido un error capturando la fecha de salida')
-      console.log('El error concreto es el siguiente: ' + error)
-      fechaPublicacion='Desconocida'
-    }
+    const resultado = {
+      "busquedaAmazon": JSON.parse(resultadoAmazon),
+      "busquedaIberLibros": JSON.parse(resultadoIberLibros)
+    };
     
-    const precio = await elemento.$eval('meta[itemprop="price"]', el => el.getAttribute('content'));
-    const precioMoneda = await elemento.$eval('meta[itemprop="priceCurrency"]', el => el.getAttribute('content'));
-
-    //TODO imagen
-    //const imagen=...............
-
-    //if(i==2){await sleep(10000)}
-
-    console.log('Iteración numero: ' + i)
-    let texto={titulo, autor, isbn, editorial, fechaPublicacion, precio, precioMoneda}
-    resulta.push(texto)
+    res.json(resultado);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ocurrió un error en el servidor' });
   }
-    // Close browser
-    await browser.close();
-  // Poner los precios en JSON en un archivo
-  const datosString = JSON.stringify(resulta);
-  console.log(datosString)
-  res.json(datosString)
-  
 });
 
 app.listen(port, () => {
