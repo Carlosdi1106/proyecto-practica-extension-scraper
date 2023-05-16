@@ -13,14 +13,31 @@ function App() {
 
   const fetchObject = () => fetch(imageUrl)
   .then(response => response.json())
-  .then(papa => setData(JSON.parse(papa)))
-  .catch(error => console.error('Error:', error));
+  .then(papa => {let resu = papa;
+    let resulPro = compararLibros(resu.busquedaIberLibros,resu.busquedaAmazon)
+    console.log(resulPro);
+    setData(resulPro);
+  }).catch(error => console.error('Error:', error));
 
   //
   const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   const handleLanguageChange = (newLanguage) => {
     setSelectedLanguage(newLanguage);
+  };
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleNext = () => {
+    if (currentIndex < data.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
   };
 
 
@@ -67,26 +84,51 @@ function App() {
       <LanguageSelector selectedLanguage={selectedLanguage} onLanguageChange={handleLanguageChange} />
     </div>
       {/* Aquí puedes mostrar los resultados de búsqueda */}
-      <ul class="results-list">
-        {data.map((result, index) => (
-          <li key={index}>
-            <div class="book-item">
-              <div class="book-container-portada">
-                <img class="book-image" src={result.imagen || '/portadaEjemplo.jpg'} alt="Imagen del libro" />
-              </div>
-              <div class="book-container-info">
-                <div class="title">Titulo: <span>{result.titulo}</span></div>
-                <div class="author">Autor: <span>{result.autor}</span></div>
-                <div class="isbn">ISBN: <span>{result.isbn}</span></div>
-                <div class="publisher">Editorial: <span>{result.editorial}</span></div>
-                <div class="publication-date">Fecha de Publicación: <span>{result.fechaPublicacion}</span></div>
-                <div class="price">Precio: <span>{result.precio} {result.precioMoneda}</span></div>
-              </div>
+      <div>
+      {data.length > 0 ? (
+      <div className="row">
+        <div className="column">
+          <h2>IberLibros</h2>
+          <div className="book-item">
+            <div className="book-container-portada">
+              <img className="book-image" src={data[currentIndex]?.contenidoIberLibro?.imagen || '/portadaEjemplo.jpg'} alt="Imagen del libro" />
             </div>
-          </li>
-        ))}
-      </ul>
+            <div className="book-container-info">
+              <div className="title">Titulo: <span>{data[currentIndex]?.contenidoIberLibro?.titulo}</span></div>
+              <div className="author">Autor: <span>{data[currentIndex]?.contenidoIberLibro?.autor}</span></div>
+              <div className="isbn">ISBN: <span>{data[currentIndex]?.contenidoIberLibro?.isbn}</span></div>
+              <div className="publisher">Editorial: <span>{data[currentIndex]?.contenidoIberLibro?.editorial}</span></div>
+              <div className="publication-date">Fecha de Publicación: <span>{data[currentIndex]?.contenidoIberLibro?.fechaPublicacion}</span></div>
+              <div className="price">Precio: <span>{data[currentIndex]?.contenidoIberLibro?.precio} {data[currentIndex]?.contenidoIberLibro?.precioMoneda}</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="column">
+          <h2>Amazon</h2>
+          <div className="book-item">
+            <div className="book-container-portada">
+              <img className="book-image" src={data[currentIndex]?.contenidoAmazon?.imagen || '/portadaEjemplo.jpg'} alt="Imagen del libro" />
+            </div>
+            <div className="book-container-info">
+              <div className="title">Titulo: <span>{data[currentIndex]?.contenidoAmazon?.titulo}</span></div>
+              <div className="author">Autor: <span>{data[currentIndex]?.contenidoAmazon?.autor}</span></div>
+              <div className="isbn">ISBN: <span>{data[currentIndex]?.contenidoAmazon?.isbn}</span></div>
+              <div className="publisher">Editorial: <span>{data[currentIndex]?.contenidoAmazon?.editorial}</span></div>
+              <div className="publication-date">Fecha de Publicación: <span>{data[currentIndex]?.contenidoAmazon?.fechaPublicacion}</span></div>
+              <div className="price">Precio: <span>{data[currentIndex]?.contenidoAmazon?.precio} {data[currentIndex]?.contenidoAmazon?.precioMoneda}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div>Cargando...</div>
+    )}
+    <div className="button-container">
+      <button onClick={handlePrev} disabled={currentIndex === 0}>Anterior</button>
+      <button onClick={handleNext} disabled={currentIndex === data.length - 1}>Siguiente</button>
     </div>
+  </div>
+  </div>
   
   );
 }

@@ -67,6 +67,8 @@ function compararLibros(listaIber, listaAmazonLibro){
   return resultados;
 }
   
-  let resul= compararLibros(listaIberLibro,listaAmazon);
-  console.log(resul);
+  //let resul= compararLibros(listaIberLibro,listaAmazon);
+  //console.log(resul);
+
+module.exports={compararLibros};
   

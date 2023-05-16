@@ -16,14 +16,61 @@ app.use((req, res, next) => {
 
 app.get('/:busqueda', async (req, res) => {
   try {
-    const resultadoAmazon = await amazon.busquedaAmazon("percy jackson");
-    const resultadoIberLibros = await iber.busquedaIberLibro("percy jackson");
+    //const resultadoAmazon = await amazon.busquedaAmazon("percy jackson");
+    //const resultadoIberLibros = await iber.busquedaIberLibro("percy jackson");
+
+    const listaIberLibro = [
+      {
+        titulo: "El nombre del viento",
+        autor: "Patrick Rothfuss",
+        isbn: "9788401352836",
+        editorial: "Penguin Random House Grupo Editorial España",
+        fechaPublicacion: "2008-03-10",
+        precio: 20.0,
+        precioMoneda: "EUR"
+      },
+      {
+        titulo: "Cien años de soledad",
+        autor: "Gabriel García Márquez",
+        isbn: "9788420471839",
+        editorial: "Penguin Random House Grupo Editorial España",
+        fechaPublicacion: "1967-06-05",
+        precio: 10.0,
+        precioMoneda: "USD"
+      }
+    ];
     
+    const listaAmazon = [
+      {
+        titulo: "El nombre del viento",
+        autor: "Patrick Rothfuss",
+        isbn: "9788401352836",
+        editorial: "Editorial Planeta",
+        fechaPublicacion: "2010-02-01",
+        precio: 15.0,
+        precioMoneda: "USD"
+      },
+      {
+        titulo: "Cien años de soledad",
+        autor: "Gabriel García Márquez",
+        isbn: "9788420471839",
+        editorial: "Cien años de soledad",
+        fechaPublicacion: "2014-05-30",
+        precio: 12.0,
+        precioMoneda: "EUR"
+      }
+    ];
+    
+    //const resultado = {
+    //  "busquedaAmazon": JSON.parse(resultadoAmazon),
+    //  "busquedaIberLibros": JSON.parse(resultadoIberLibros)
+    //};
+
     const resultado = {
-      "busquedaAmazon": JSON.parse(resultadoAmazon),
-      "busquedaIberLibros": JSON.parse(resultadoIberLibros)
+        "busquedaAmazon": listaAmazon,
+        "busquedaIberLibros": listaIberLibro
     };
-    
+    let datos = JSON.stringify(resultado);
     res.json(resultado);
   } catch (error) {
     console.error(error);
