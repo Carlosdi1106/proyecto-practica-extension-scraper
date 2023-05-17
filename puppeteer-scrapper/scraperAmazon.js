@@ -10,18 +10,27 @@ async function busquedaAmazon(stringDeBusqueda){
 
   // Bucar la caja de busqueda e introducir el texto en ella
   const searchBox = await page.$('#twotabsearchtextbox');
-  //let busqueda = stringDeBusqueda + ' libros'
-  let busqueda= 'percy jackson libro español';
-  await searchBox.type(busqueda);
-  
+  let busqueda = stringDeBusqueda + ' libros'
+  //let busqueda= 'Percy Jackson libro español';
+  try{
+    await searchBox.type(busqueda);
+  }
+  catch (error)
+  {
+    throw new Error('Vuelve a lanzar el scraper. Ha dado error en el type')
+  }
+
+
   // Apretar el boton enter
   await searchBox.press('Enter');
   await page.waitForNavigation();
   await page.addScriptTag({ content: 'document.charset = "UTF-8";' });
 
   //await sleep(1000000000);
+  
+  
   //BORRAR UNA VEZ PASE CON PARAMETRO
-  busqueda='percy jackson'
+  //busqueda=stringDeBusqueda
 
 
   // Extraer datos
@@ -31,9 +40,7 @@ async function busquedaAmazon(stringDeBusqueda){
     const items = document.querySelectorAll(".s-result-item .s-card-border");
     for (let i = items.length; i--; ) {
 
-      if(j>10){continue}
-      j++;
-
+      
 
       let item = items[i];
       let titulo = item.querySelector("h2 > a > span");
@@ -95,7 +102,9 @@ async function busquedaAmazon(stringDeBusqueda){
 
 
     
-  }, busqueda);
+  //}, busqueda);
+  }, stringDeBusqueda);
+
   
   // Abrir la página individual del producto
   
@@ -104,26 +113,47 @@ async function busquedaAmazon(stringDeBusqueda){
     await productPage.goto(libro.url);
     const libroFinal = await productPage.evaluate(() => {
       let doc=document.getElementById('detailBullets_feature_div');
-      
-      let isbnAux=doc.querySelector('ul > li:nth-child(5) > span > span:nth-child(2)').innerText
-      let isbn=isbnAux.replace("-","")
+      let isbn=''
+      let editorial=''
+      let fechaPublicacion=''
+
+      let isbnAux=''
+      try{isbnAux=doc.querySelector('ul > li:nth-child(5) > span > span:nth-child(2)').innerText;}
+      catch (error){
+        console.log('Error leyendo el isbn')
+        isbn='ErrorEnElIsbn'
+      }
+      isbn=isbnAux.replace("-","")
       if(isbn.length != 13)
       {
         isbn="Eliminar"
       }
-      
-      let fechaYeditorial= doc.querySelector('ul > li:nth-child(1) > span > span:nth-child(2)').innerText
-
-      if(!(fechaYeditorial.includes('('))){
-        fechaYeditorial= doc.querySelector('ul > li:nth-child(2) > span > span:nth-child(2)').innerText
+      let fechaYeditorial=''
+      try{fechaYeditorial= doc.querySelector('ul > li:nth-child(1) > span > span:nth-child(2)').innerText}
+      catch (error){
+        fechaYeditorial='ErrorEnElSegundoFechaEdit'
       }
 
-      const regex = /\((.*?)\)/;
-      let fechaPublicacionAux = fechaYeditorial.match(regex);
-      const fechaPublicacion=fechaPublicacionAux[1];
+      if(!(fechaYeditorial.includes('('))){
+        try{fechaYeditorial= doc.querySelector('ul > li:nth-child(2) > span > span:nth-child(2)').innerText}
+        catch (error){
+          fechaYeditorial='ErrorEnElPrimerFechaEdit'
+        }
+      }
 
-      let editorialAux= fechaYeditorial.split(regex)
-      const editorial=editorialAux[0].trim();
+      if(!(fechaYeditorial.includes('('))){
+        fechaPublicacion='Desconocida'
+        editorial='Desconocida'
+      }
+      else{
+        const regex = /\((.*?)\)/;
+        let fechaPublicacionAux = fechaYeditorial.match(regex);
+        fechaPublicacion=fechaPublicacionAux[1];
+
+        let editorialAux= fechaYeditorial.split(regex)
+        editorial=editorialAux[0].trim();
+      }
+
 
       return {isbn,editorial, fechaPublicacion}
     });
@@ -138,6 +168,7 @@ async function busquedaAmazon(stringDeBusqueda){
   const productosFinales= products.filter(elemento => elemento.isbn !== "Eliminar")
 
   console.log(productosFinales)
+
 
   // Poner los precios en JSON en un archivo
   const datosString = JSON.stringify(productosFinales);

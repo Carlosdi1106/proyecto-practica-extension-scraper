@@ -12,8 +12,10 @@ async function busquedaIberLibro(stringDeBusqueda){
   //busca la palabra deseada
   const searchBox =await page.$('#header-searchbox-input-m')
   
+  let busqueda = stringDeBusqueda
+
   //await searchBox.type(stringDeBusqueda)
-  await searchBox.type('percy jackson libro español')
+  await searchBox.type(busqueda)
   
   await searchBox.press('Enter')
   await page.waitForNavigation();
