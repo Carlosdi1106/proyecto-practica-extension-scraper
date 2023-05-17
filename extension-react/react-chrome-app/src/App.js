@@ -111,6 +111,7 @@ function App() {
   return (
     <div>
       <SearchBar onSearch={handleSearch} />
+      {/*
       <div>
         <h1>Idioma seleccionado: {selectedLanguage}</h1>
         <LanguageSelector
@@ -118,6 +119,7 @@ function App() {
           onLanguageChange={handleLanguageChange}
         />
       </div>
+  */}
       {/* Aquí puedes mostrar los resultados de búsqueda */}
       <div>
         {data.length > 0 ? (
@@ -173,6 +175,11 @@ function App() {
                       {data[currentIndex]?.contenidoIberLibro?.precioMoneda}
                     </span>
                   </div>
+                  <div className="buy-button">
+                    <a href={data[currentIndex]?.contenidoIberLibro?.url} target="_blank" rel="noopener noreferrer" className="buy-link">
+                      Comprar
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -225,6 +232,11 @@ function App() {
                       {data[currentIndex]?.contenidoAmazon?.precioMoneda}
                     </span>
                   </div>
+                  <div className="buy-button">
+                    <a href={data[currentIndex]?.contenidoAmazon?.url} target="_blank" rel="noopener noreferrer" className="buy-link">
+                      Comprar
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -260,10 +272,21 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <div>
-      <input type="text" value={searchTerm} onChange={handleInputChange} />
-      <button onClick={handleSearch}>Buscar</button>
-    </div>
+    <div className="search-container">
+  {/* Input para ingresar el término de búsqueda */}
+  <input
+    type="text"
+    value={searchTerm}
+    onChange={handleInputChange}
+    placeholder="Ingrese su búsqueda"
+    className="search-input"
+  />
+
+  {/* Botón para iniciar la búsqueda */}
+  <button onClick={handleSearch} className="search-button">
+    Buscar
+  </button>
+</div>
   );
 };
 
