@@ -61,6 +61,12 @@ async function busquedaIberLibro(stringDeBusqueda){
       console.log('El error concreto es el siguiente: ' + error)
       autor='Desconocida'
     }
+    if(autor.includes(',')){
+      let autorAux=autor.split(', ')
+      let nombre=autorAux[1]
+      let apellido=autorAux[0]
+      autor=nombre + ' ' + apellido
+    }
 
     //alguno no tiene editorial
     let editorial='';
