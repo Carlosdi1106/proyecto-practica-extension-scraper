@@ -1,7 +1,9 @@
 const puppeteer = require('puppeteer');
-const fs = require('fs');
+const { Cluster } =require('puppeteer-cluster')
+//busquedaAmazon('percy jackson', 40)
 
-async function busquedaAmazon(stringDeBusqueda){
+async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
+  
   // Lanzar el navegador y abrir la página
   const browser = await puppeteer.launch({headless: false});
   const page = await browser.newPage();
@@ -11,7 +13,6 @@ async function busquedaAmazon(stringDeBusqueda){
   // Bucar la caja de busqueda e introducir el texto en ella
   const searchBox = await page.$('#twotabsearchtextbox');
   let busqueda = stringDeBusqueda + ' libros'
-  //let busqueda= 'Percy Jackson libro español';
   try{
     await searchBox.type(busqueda);
   }
@@ -26,11 +27,7 @@ async function busquedaAmazon(stringDeBusqueda){
   await page.waitForNavigation();
   await page.addScriptTag({ content: 'document.charset = "UTF-8";' });
 
-  //await sleep(1000000000);
-  
-  
-  //BORRAR UNA VEZ PASE CON PARAMETRO
-  //busqueda=stringDeBusqueda
+  let resultadosConIsbn=[];
 
 
   // Extraer datos
@@ -38,7 +35,7 @@ async function busquedaAmazon(stringDeBusqueda){
     let results = [];
     let j=0;
     const items = document.querySelectorAll(".s-result-item .s-card-border");
-    for (let i = items.length; i--; ) {
+    for (let i=0; i < items.length-1; i++ ) {
 
       
 
@@ -108,74 +105,102 @@ async function busquedaAmazon(stringDeBusqueda){
   
   // Abrir la página individual del producto
   
-  for (let libro of products){
-    const productPage = await browser.newPage();
-    await productPage.goto(libro.url);
-    const libroFinal = await productPage.evaluate(() => {
-      let doc=document.getElementById('detailBullets_feature_div');
-      let isbn=''
-      let editorial=''
-      let fechaPublicacion=''
+  const cluster= await Cluster.launch({
+    concurrency: Cluster.CONCURRENCY_PAGE,
+    maxConcurrency: 10,
+    puppeteerOptions: {headless:false}
+  })
 
-      let isbnAux=''
-      try{isbnAux=doc.querySelector('ul > li:nth-child(5) > span > span:nth-child(2)').innerText;}
-      catch (error){
-        console.log('Error leyendo el isbn')
-        isbn='ErrorEnElIsbn'
-      }
-      isbn=isbnAux.replace("-","")
-      if(isbn.length != 13)
-      {
-        isbn="Eliminar"
-      }
-      let fechaYeditorial=''
-      try{fechaYeditorial= doc.querySelector('ul > li:nth-child(1) > span > span:nth-child(2)').innerText}
-      catch (error){
-        fechaYeditorial='ErrorEnElSegundoFechaEdit'
-      }
-
-      if(!(fechaYeditorial.includes('('))){
-        try{fechaYeditorial= doc.querySelector('ul > li:nth-child(2) > span > span:nth-child(2)').innerText}
+  await cluster.task(async ({ page, data: libro }) => {
+    await page.goto(libro.url);
+    const libroFinal = await page.evaluate(() => {
+        let doc=document.getElementById('detailBullets_feature_div');
+        let isbn=''
+        let editorial=''
+        let fechaPublicacion=''
+        let isbnAux=''
+        try{isbnAux=doc.querySelector('ul > li:nth-child(5) > span > span:nth-child(2)').innerText;}
         catch (error){
-          fechaYeditorial='ErrorEnElPrimerFechaEdit'
+          console.log('Error leyendo el isbn')
+          isbn='ErrorEnElIsbn'
         }
-      }
+        isbn=isbnAux.replace("-","")
+        if(isbn.length != 13)
+        {
+          isbn="Eliminar"
+        }
+        let fechaYeditorial=''
+        try{fechaYeditorial= doc.querySelector('ul > li:nth-child(1) > span > span:nth-child(2)').innerText}
+        catch (error){
+          fechaYeditorial='ErrorEnElSegundoFechaEdit'
+        }
+  
+        if(!(fechaYeditorial.includes('('))){
+          try{fechaYeditorial= doc.querySelector('ul > li:nth-child(2) > span > span:nth-child(2)').innerText}
+          catch (error){
+            fechaYeditorial='ErrorEnElPrimerFechaEdit'
+          }
+        }
+  
+        if(!(fechaYeditorial.includes('('))){
+          fechaPublicacion='Desconocida'
+          editorial='Desconocida'
+        }
+        else{
+          const regex = /\((.*?)\)/;
+          let fechaPublicacionAux = fechaYeditorial.match(regex);
+          fechaPublicacion=fechaPublicacionAux[1];
+  
+          let editorialAux= fechaYeditorial.split(regex)
+          editorial=editorialAux[0].trim();
+        }
+  
+        
 
-      if(!(fechaYeditorial.includes('('))){
-        fechaPublicacion='Desconocida'
-        editorial='Desconocida'
-      }
-      else{
-        const regex = /\((.*?)\)/;
-        let fechaPublicacionAux = fechaYeditorial.match(regex);
-        fechaPublicacion=fechaPublicacionAux[1];
+        return {isbn,editorial, fechaPublicacion}
+      });
+      //console.log(libroFinal)
+  
+      libro.editorial=libroFinal.editorial
+      libro.fechaPublicacion=libroFinal.fechaPublicacion
+      libro.isbn=libroFinal.isbn
 
-        let editorialAux= fechaYeditorial.split(regex)
-        editorial=editorialAux[0].trim();
-      }
+      console.log('Procesado: ' +  libro.isbn)
 
-
-      return {isbn,editorial, fechaPublicacion}
+      resultadosConIsbn.push(libro)
+  
     });
-    //console.log(libroFinal)
 
-    libro.editorial=libroFinal.editorial
-    libro.fechaPublicacion=libroFinal.fechaPublicacion
-    libro.isbn=libroFinal.isbn
+  for (let libro of products)
+  {
+    await cluster.queue(libro)
   }
 
+  
+  tiempoEspera = parseInt(tiempoEspera) * 1000
+  console.log('++++++++++++++++++++++++++++++++++Estoy durmiendo')
+  await sleep(tiempoEspera)
+  console.log('++++++++++++++++++++++++++++++++++Me he despertado')
 
-  const productosFinales= products.filter(elemento => elemento.isbn !== "Eliminar")
+  
 
-  console.log(productosFinales)
-
+  const productosFinales= resultadosConIsbn.filter(elemento => elemento.isbn !== "Eliminar")
 
   // Poner los precios en JSON en un archivo
   const datosString = JSON.stringify(productosFinales);
   
 
   // Close browser
+
+  await cluster.close();
   await browser.close();
+  await cluster.close();
+
+  console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+  console.log(datosString)
+  console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+  console.log('Cantidad de resultados: ' + datosString.length)
+
   return datosString;
 };
 
