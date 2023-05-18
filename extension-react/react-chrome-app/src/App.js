@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 
 function App() {
   const [searchResults, setSearchResults] = useState([]);
+  const [activeButton, setActiveButton] = useState(20);
   const imageUrl = "http://localhost:3001/";
   const [data, setData] = useState([]);
   let inicializated = false;
@@ -72,11 +73,16 @@ function App() {
     }
   };
 
+  
+  const handleButtonClick = (button) => {
+    setActiveButton(button);
+  };
+
   const handleSearch = (searchTerm) => {
     // Aquí puedes realizar la lógica de búsqueda según tus necesidades
     // Por ejemplo, puedes hacer una solicitud a una API o buscar en una lista de elementos
     // En este ejemplo, simplemente estableceremos los resultados de búsqueda en un array vacío
-    let busqueda = imageUrl + searchTerm;
+    let busqueda = imageUrl + searchTerm + '/' + activeButton;
     fetchObject(busqueda);
     //setData(JSON.parse(busquedaIberLibro(imageUrl)));
   };
@@ -110,6 +116,7 @@ function App() {
 
   return (
     <div>
+      <ExclusiveButtons activeButton={activeButton} onButtonClick={handleButtonClick} />
       <SearchBar onSearch={handleSearch} />
       {/*
       <div>
@@ -272,6 +279,7 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
+    <div>
     <div className="search-container">
   {/* Input para ingresar el término de búsqueda */}
   <input
@@ -287,6 +295,37 @@ const SearchBar = ({ onSearch }) => {
     Buscar
   </button>
 </div>
+<div>
+  <p>#Recomendado para busquedas con ISBN o titulos precisos.</p>
+</div>
+</div>
+  );
+};
+
+
+const ExclusiveButtons = ({ activeButton, onButtonClick }) => {
+  return (
+    <div className="button-container">
+      <h1>Modo de Busqueda: </h1>
+      <button
+        className={`button green-button ${activeButton === 20 ? 'active' : ''}`}
+        onClick={() => onButtonClick(20)}
+      >
+        Rapido
+      </button>
+      <button
+        className={`button yellow-button ${activeButton === 40 ? 'active' : ''}`}
+        onClick={() => onButtonClick(40)}
+      >
+        Normal
+      </button>
+      <button
+        className={`button red-button ${activeButton === 60 ? 'active' : ''}`}
+        onClick={() => onButtonClick(60)}
+      >
+        Lento
+      </button>
+    </div>
   );
 };
 

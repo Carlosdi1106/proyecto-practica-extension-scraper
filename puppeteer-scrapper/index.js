@@ -14,9 +14,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/:busqueda', async (req, res) => {
+app.get('/:busqueda/:modo', async (req, res) => {
   try {
-    const resultadoAmazon = await amazon.busquedaAmazon(req.params.busqueda);
+    const resultadoAmazon = await amazon.busquedaAmazon(req.params.busqueda, req.params.modo);
     const resultadoIberLibros = await iber.busquedaIberLibro(req.params.busqueda);
 
   

@@ -63,11 +63,11 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
       titulo= titulo.innerText;
       let tituloAux = titulo.toLowerCase()
       //TODO posible problema con el parametro
-      if (!(tituloAux.includes(busquedaParam.toLowerCase())))
-      {
-        console.log(titulo);
-        continue;
-      }
+      //if (!(tituloAux.includes(busquedaParam.toLowerCase())))
+      //{
+        //console.log(titulo);
+        //continue;
+      //}
 
       //AUTORES
       try{
