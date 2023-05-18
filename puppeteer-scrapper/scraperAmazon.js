@@ -54,9 +54,17 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
       let url= item.querySelector("a[class='a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']");
       url=url.getAttribute('href')
       url='https://www.amazon.es' + url
-      let precioMoneda = 'EUR';
+      let precioMoneda = '';
       //let precioMoneda = item.querySelector(".a-price-symbol"); TODO solucionar para que muestre el dinero
+      try{precioMoneda = item.querySelector(".a-price-symbol").innerText;}
+      catch (error){
+        precioMoneda='€'
+      }
 
+      if(precioMoneda=='€'){precioMoneda='EUR'}
+      else if(precioMoneda=='£'){precioMoneda='LIB'} 
+      else if(precioMoneda=='$'){precioMoneda='DOL'} 
+      else{precioMoneda='EUR'}
       //ajustar los resultados
 
       //Solo seleccione libros "válidos" TITULOS

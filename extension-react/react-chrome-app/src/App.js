@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [activeButton, setActiveButton] = useState(20);
+  const [loading, setLoading] = useState(false);
   const imageUrl = "http://localhost:3001/";
   const [data, setData] = useState([]);
   let inicializated = false;
@@ -49,6 +50,7 @@ function App() {
         );
         console.log(resulPro);
         setData(resulPro);
+        setLoading(false);
       })
       .catch((error) => console.error("Error:", error));
 
@@ -82,8 +84,10 @@ function App() {
     // Aquí puedes realizar la lógica de búsqueda según tus necesidades
     // Por ejemplo, puedes hacer una solicitud a una API o buscar en una lista de elementos
     // En este ejemplo, simplemente estableceremos los resultados de búsqueda en un array vacío
+    setLoading(true);
     let busqueda = imageUrl + searchTerm + '/' + activeButton;
     fetchObject(busqueda);
+    
     //setData(JSON.parse(busquedaIberLibro(imageUrl)));
   };
 
@@ -129,7 +133,10 @@ function App() {
   */}
       {/* Aquí puedes mostrar los resultados de búsqueda */}
       <div>
-        {data.length > 0 ? (
+        {loading?( 
+        <div class="loading-circle"></div>
+        )
+        :data.length > 0 ? (
           <div className="row">
             <div
               className={`column ${
@@ -249,7 +256,7 @@ function App() {
             </div>
           </div>
         ) : (
-          <div>Cargando...</div>
+          null
         )}
         <div className="button-container">
           <button onClick={handlePrev} disabled={currentIndex === 0}>
