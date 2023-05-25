@@ -1,6 +1,5 @@
 const puppeteer = require('puppeteer');
 const { Cluster } =require('puppeteer-cluster')
-//busquedaAmazon('percy jackson', 40)
 
 async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
   
@@ -55,7 +54,7 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
       url=url.getAttribute('href')
       url='https://www.amazon.es' + url
       let precioMoneda = '';
-      //let precioMoneda = item.querySelector(".a-price-symbol"); TODO solucionar para que muestre el dinero
+
       try{precioMoneda = item.querySelector(".a-price-symbol").innerText;}
       catch (error){
         precioMoneda='€'
@@ -65,17 +64,15 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
       else if(precioMoneda=='£'){precioMoneda='LIB'} 
       else if(precioMoneda=='$'){precioMoneda='DOL'} 
       else{precioMoneda='EUR'}
+      
+      
       //ajustar los resultados
 
       //Solo seleccione libros "válidos" TITULOS
       titulo= titulo.innerText;
       let tituloAux = titulo.toLowerCase()
-      //TODO posible problema con el parametro
-      //if (!(tituloAux.includes(busquedaParam.toLowerCase())))
-      //{
-        //console.log(titulo);
-        //continue;
-      //}
+      
+
 
       //AUTORES
       try{
@@ -84,8 +81,7 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
       catch (error){
         continue;
       }
-      
-      //precioMoneda=precioMoneda.innerText; TODO solucionar para que muestre el dinero
+
       
       //el producto puede no tener precio
       if(precio==null){
@@ -107,7 +103,6 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
 
 
     
-  //}, busqueda);
   }, stringDeBusqueda);
 
   
@@ -135,6 +130,7 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
         isbn=isbnAux.replace("-","")
         if(isbn.length != 13)
         {
+          isbnAux=isbn
           isbn="Eliminar"
         }
         let fechaYeditorial=''
@@ -164,8 +160,8 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
         }
   
         
-
         return {isbn,editorial, fechaPublicacion}
+        //return {isbn,editorial, fechaPublicacion, isbnAux}
       });
       //console.log(libroFinal)
   
@@ -174,23 +170,34 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
       libro.isbn=libroFinal.isbn
 
       console.log('Procesado: ' +  libro.isbn)
+      //console.log('ProcesadoAux: ' + libroFinal.isbnAux)
 
       resultadosConIsbn.push(libro)
   
     });
 
-  for (let libro of products)
-  {
-    await cluster.queue(libro)
+  tiempoEspera=parseInt(tiempoEspera);
+  let trozos
+
+  if (tiempoEspera==20){
+    trozos=3
+  }
+  else if (tiempoEspera==40){
+    trozos=2
+  }
+  else {
+    trozos=1
   }
 
-  
-  tiempoEspera = parseInt(tiempoEspera) * 1000
-  console.log('++++++++++++++++++++++++++++++++++Estoy durmiendo')
-  await sleep(tiempoEspera)
-  console.log('++++++++++++++++++++++++++++++++++Me he despertado')
+  let longitud=products.length
+  let contador = longitud / trozos
 
-  
+  for(let i=0; i<contador; i++){
+    await cluster.queue(products[i])
+  }
+
+  await cluster.idle(); 
+  await cluster.close();
 
   const productosFinales= resultadosConIsbn.filter(elemento => elemento.isbn !== "Eliminar")
 
@@ -199,10 +206,7 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
   
 
   // Close browser
-
-  await cluster.close();
   await browser.close();
-  await cluster.close();
 
   console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
   console.log(datosString)
