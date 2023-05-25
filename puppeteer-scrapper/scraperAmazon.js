@@ -17,7 +17,9 @@ async function busquedaAmazon(stringDeBusqueda, tiempoEspera){
   }
   catch (error)
   {
-    throw new Error('Vuelve a lanzar el scraper. Ha dado error en el type')
+    console.log('Ha habido un problema con el type en el scraper de amazon, vuelva a intentarlo')
+    browser.close()    
+    return []
   }
 
 
